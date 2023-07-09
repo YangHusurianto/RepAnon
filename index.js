@@ -1,12 +1,14 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const Keyv = require('keyv');
 
 // Access env variables
 require("dotenv").config();
 
 // Create client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const repDB = new Keyv(process.env.MONGO_CONNECTION);
 
 // register slash commands
 client.commands = new Collection();
