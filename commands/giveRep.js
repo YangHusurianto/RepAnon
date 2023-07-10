@@ -28,6 +28,14 @@ module.exports = function(repDB) {
 							{ name: 'Negative', value: 0 },
 						))),
 		async execute(interaction) {
+			// ensure that the user is in the rep server (GUILD_ID)
+			const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
+			const inServer = await guild.members.fetch(`${interaction.user.id}`)
+				.catch(console.error);
+			if (inServer.size == 0) {
+				interaction.reply({ content: `You must be in the ${guild.name} server to give rep to others.`, ephemeral: true });
+			}
+
 			let target;
 			const mentiontarget = interaction.options.getUser('mentiontarget');
 			const usernametarget = interaction.options.getString('usernametarget');
@@ -42,16 +50,15 @@ module.exports = function(repDB) {
 
 			if (usernametarget) {
 				// search through guild for user
-				const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
 				let users = await guild.members.fetch({ query: interaction.options.getString('usernametarget') })
 					.catch(console.error);
 
 				if (users.size > 1) {
-					await interaction.reply("Too many users found with that username, please be more specific.");
+					await interaction.reply({ content: "Too many users found with that username, please be more specific.", ephemeral: true });
 					return;
 				}
 				if (users.size == 0) {
-					await interaction.reply("No user found with that username.");
+					await interaction.reply({ content: "No user found with that username.", ephemeral: true });
 					return;
 				}
 
