@@ -48,7 +48,3 @@ for (const file of eventFiles) {
 
 // Log in with token
 client.login();
-
-//https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/other-guides/env-files.md
-//https://discordjs.guide/slash-commands/deleting-commands.html#deleting-specific-commands
-//https://old.discordjs.dev/#/docs/discord.js/main/class/CommandInteraction?scrollTo=inGuild
