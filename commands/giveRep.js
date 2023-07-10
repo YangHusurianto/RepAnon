@@ -11,12 +11,22 @@ module.exports = function(repDB) {
 				subcommand
 					.setName('mention')
 					.setDescription('Provide a mention to give rep to')
-					.addUserOption(option => option.setName('mentiontarget').setDescription('The user mention to give rep to').setRequired(true)))
+					.addUserOption(option => option.setName('mentiontarget').setDescription('The user mention to give rep to').setRequired(true))
+					.addIntegerOption(option => option.setName('type').setDescription("Positive or negative rep").setRequired(true)
+						.addChoices(
+							{ name: 'Positive', value: 1 },
+							{ name: 'Negative', value: 0 },
+						)))
 			.addSubcommand(subcommand => 
 				subcommand
 					.setName('username')
 					.setDescription('Provide a username to give rep to')
-					.addStringOption(option => option.setName('usernametarget').setDescription('The username to give rep to').setRequired(true))),
+					.addStringOption(option => option.setName('usernametarget').setDescription('The username to give rep to').setRequired(true))
+					.addIntegerOption(option => option.setName('type').setDescription("Positive or negative rep").setRequired(true)
+						.addChoices(
+							{ name: 'Positive', value: 1 },
+							{ name: 'Negative', value: 0 },
+						))),
 		async execute(interaction) {
 			let target;
 			const mentiontarget = interaction.options.getUser('mentiontarget');
@@ -54,25 +64,62 @@ module.exports = function(repDB) {
 				return;
 			}
 
+			// value to modify rep by
+			let repValue = interaction.options.getInteger('type');
+
 			// ensure target data exists
 			let repData = await repDB.get(target.id);
 			if (!repData) {
-				let initialData = { id:target.id, rep:0, givenPos:[], givenNeg:[] };
+				let initialData = { rep:0, givenPos:[], givenNeg:[] };
 				await repDB.set(target.id, initialData);
 				repData = initialData;
 			}
 
 			// check if user has already given rep
-			console.log(repData);
-			if (repData.givenPos.includes(interaction.user.id)) {
-				await interaction.reply("You have already given this user rep!");
-				return;
-			}
+			if (repValue) {
+				// if the user has already given the target positive rep
+				if (repData.givenPos.includes(interaction.user.id)) {
+					await interaction.reply({ content: "You have already given this user positive rep!", ephemeral: true });
+					return;
+				}
 
-			repData.givenPos.push(interaction.user.id);
-			repData.rep += 1;
-			await repDB.set(target.id, repData);
-			await interaction.reply(`Given ${target.username} one rep!`);
+				// if the user has given negative rep in the past
+				if (repData.givenNeg.includes(interaction.user.id)) {
+					repData.givenNeg = repData.givenNeg.filter(id => id !== interaction.user.id);
+					repData.rep += 1;
+					await repDB.set(target.id, repData);
+					await interaction.reply({ content: `Given ${target.username} neutral rep!`, ephemeral: true });
+					return;
+				}
+
+				// if the user has given neither pos/neg rep 
+				repData.givenPos.push(interaction.user.id);
+				repData.rep += 1;
+				await repDB.set(target.id, repData);
+				await interaction.reply({ content: `Given ${target.username} positive rep!`, ephemeral: true });
+			} else if (!repValue) {
+
+				// if the user has already given the target negative rep
+				if (repData.givenNeg.includes(interaction.user.id)) {
+					await interaction.reply({ content: "You have already given this user negative rep!", ephemeral: true });
+					return;
+				}
+
+				// if the user has given positive rep in the past
+				if (repData.givenPos.includes(interaction.user.id)) {
+					repData.givenPos = repData.givenPos.filter(id => id !== interaction.user.id);
+					repData.rep -= 1;
+					await repDB.set(target.id, repData);
+					await interaction.reply({ content: `Given ${target.username} neutral rep!`, ephemeral: true });
+					return;
+				}
+
+				// if the user has given neither pos/neg rep
+				repData.givenNeg.push(interaction.user.id);
+				repData.rep -= 1;
+				await repDB.set(target.id, repData);
+				await interaction.reply({ content: `Given ${target.username} negative rep!`, ephemeral: true });
+			}
 		},
 	};
 };	

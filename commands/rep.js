@@ -13,14 +13,20 @@ module.exports = function(repDB) {
 			const target = interaction.options.getUser('target') ?? interaction.user;
 			let repData = await repDB.get(target.id);
 
+			// if user data doesnt already exist, create
 			if (!repData) {
-				let initialData = { id:target.id, rep:0, givenPos:[], givenNeg:[] };
+				let initialData = { rep:0, givenPos:[], givenNeg:[] };
 				await repDB.set(target.id, initialData);
 				repData = initialData;
 			}
 
+			let repColor = 0xbbbbbb;
+
+			if (repData.rep > 0) repColor = 0x29b2ff; //positive color
+			if (repData.rep < 0) repColor = 0xba2222; //negative color
+
 			const repEmbed = new EmbedBuilder()
-				.setColor(0x29b2ff)
+				.setColor(repColor)
 				.setTitle(`${target.username} has ${repData.rep} rep`)
 				.setAuthor({name: `${target.username}`, iconURL: `${target.avatarURL()}`});
 
