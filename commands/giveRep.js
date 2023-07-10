@@ -54,8 +54,24 @@ module.exports = function(repDB) {
 				return;
 			}
 
-			const rep = await repDB.get(target.id);
-			await repDB.set(target.id, rep + 1);
+			// ensure target data exists
+			let repData = await repDB.get(target.id);
+			if (!repData) {
+				let initialData = { id:target.id, rep:0, givenPos:[], givenNeg:[] };
+				await repDB.set(target.id, initialData);
+				repData = initialData;
+			}
+
+			// check if user has already given rep
+			console.log(repData);
+			if (repData.givenPos.includes(interaction.user.id)) {
+				await interaction.reply("You have already given this user rep!");
+				return;
+			}
+
+			repData.givenPos.push(interaction.user.id);
+			repData.rep += 1;
+			await repDB.set(target.id, repData);
 			await interaction.reply(`Given ${target.username} one rep!`);
 		},
 	};

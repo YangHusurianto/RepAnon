@@ -11,16 +11,17 @@ module.exports = function(repDB) {
 					.setDescription('The user to get the rep of')),
 		async execute(interaction) {
 			const target = interaction.options.getUser('target') ?? interaction.user;
-			let rep = await repDB.get(target.id);
+			let repData = await repDB.get(target.id);
 
-			if (!rep) {
-				await repDB.set(target.id, 0);
-				rep = 0;
+			if (!repData) {
+				let initialData = { id:target.id, rep:0, givenPos:[], givenNeg:[] };
+				await repDB.set(target.id, initialData);
+				repData = initialData;
 			}
 
 			const repEmbed = new EmbedBuilder()
 				.setColor(0x29b2ff)
-				.setTitle(`${target.username} has ${rep} rep`)
+				.setTitle(`${target.username} has ${repData.rep} rep`)
 				.setAuthor({name: `${target.username}`, iconURL: `${target.avatarURL()}`});
 
 			await interaction.reply({ embeds: [repEmbed] });
