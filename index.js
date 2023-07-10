@@ -10,6 +10,9 @@ require("dotenv").config();
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const repDB = new Keyv(process.env.MONGO_CONNECTION);
 
+// connection errors for keyv
+repDB.on('error', err => console.error('Keyv connection error: ', err));
+
 // register slash commands
 client.commands = new Collection();
 
@@ -18,7 +21,8 @@ const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('
 
 for (const file of commandFiles) {
 	const filePath = path.join(commandsPath, file);
-	const command = require(filePath);
+
+	const command = require(filePath)(repDB);
 
 	//create command item in collection
 	if ('data' in command && 'execute' in command) {
@@ -44,3 +48,7 @@ for (const file of eventFiles) {
 
 // Log in with token
 client.login();
+
+//https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/other-guides/env-files.md
+//https://discordjs.guide/slash-commands/deleting-commands.html#deleting-specific-commands
+//https://old.discordjs.dev/#/docs/discord.js/main/class/CommandInteraction?scrollTo=inGuild

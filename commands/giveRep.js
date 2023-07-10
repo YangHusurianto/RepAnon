@@ -1,18 +1,62 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
-module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('giveRep')
-		.setDescription('Give another user rep')
-		.addUserOption(option =>
-			option
-				.setName('target')
-				.setDescription('The user to get the rep of'))
-				.setRequired(true),
-	async execute(interaction) {
-		const target = interaction.options.getUser('target');
+require('dotenv').config();
 
-		await interaction.reply(`Successfully given ${target.user} 1 rep!`);
-		await interaction.deleteReply();
-	},
+module.exports = function(repDB) {
+	return {
+		data: new SlashCommandBuilder()
+			.setName('giverep')
+			.setDescription('Give another user rep')
+			.addSubcommand(subcommand => 
+				subcommand
+					.setName('mention')
+					.setDescription('Provide a mention to give rep to')
+					.addUserOption(option => option.setName('mentiontarget').setDescription('The user mention to give rep to').setRequired(true)))
+			.addSubcommand(subcommand => 
+				subcommand
+					.setName('username')
+					.setDescription('Provide a username to give rep to')
+					.addStringOption(option => option.setName('usernametarget').setDescription('The username to give rep to').setRequired(true))),
+		async execute(interaction) {
+			let target;
+			const mentiontarget = interaction.options.getUser('mentiontarget');
+			const usernametarget = interaction.options.getString('usernametarget');
+
+			if (!mentiontarget && !usernametarget) {
+				await interaction.reply({ content: 'Please mention a user or type their username.', ephemeral: true });
+				return;
+			}
+
+			// default target the mention, if specified username, change to
+			target = mentiontarget;
+
+			if (usernametarget) {
+				// search through guild for user
+				const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
+				let users = await guild.members.fetch({ query: interaction.options.getString('usernametarget') })
+					.catch(console.error);
+
+				if (users.size > 1) {
+					await interaction.reply("Too many users found with that username, please be more specific.");
+					return;
+				}
+				if (users.size == 0) {
+					await interaction.reply("No user found with that username.");
+					return;
+				}
+
+				target = users.at(0).user;
+			}
+
+			// ensure users cant give themselves rep
+			if (target.id == interaction.user.id) {
+				await interaction.reply("You can't give yourself rep!");
+				return;
+			}
+
+			const rep = await repDB.get(target.id);
+			await repDB.set(target.id, rep + 1);
+			await interaction.reply(`Given ${target.username} one rep!`);
+		},
+	};
 };	
