@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 
 require('dotenv').config();
 
@@ -28,12 +28,15 @@ module.exports = function(repDB) {
 							{ name: 'Negative', value: 0 },
 						))),
 		async execute(interaction) {
+			// defer reply for discord
+			await interaction.deferReply();
+
 			// ensure that the user is in the rep server (GUILD_ID)
 			const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
 			const inServer = await guild.members.fetch(`${interaction.user.id}`)
 				.catch(console.error);
 			if (inServer.size == 0) {
-				interaction.reply({ content: `You must be in the ${guild.name} server to give rep to others.`, ephemeral: true });
+				interaction.editReply({ content: `You must be in the ${guild.name} server to give rep to others.`, ephemeral: true });
 			}
 
 			let target;
@@ -41,7 +44,7 @@ module.exports = function(repDB) {
 			const usernametarget = interaction.options.getString('usernametarget');
 
 			if (!mentiontarget && !usernametarget) {
-				await interaction.reply({ content: 'Please mention a user or type their username.', ephemeral: true });
+				await interaction.editReply({ content: 'Please mention a user or type their username.', ephemeral: true });
 				return;
 			}
 
@@ -54,11 +57,11 @@ module.exports = function(repDB) {
 					.catch(console.error);
 
 				if (users.size > 1) {
-					await interaction.reply({ content: "Too many users found with that username, please be more specific.", ephemeral: true });
+					await interaction.editReply({ content: "Too many users found with that username, please be more specific.", ephemeral: true });
 					return;
 				}
 				if (users.size == 0) {
-					await interaction.reply({ content: "No user found with that username.", ephemeral: true });
+					await interaction.editReply({ content: "No user found with that username.", ephemeral: true });
 					return;
 				}
 
@@ -67,7 +70,7 @@ module.exports = function(repDB) {
 
 			// ensure users cant give themselves rep
 			if (target.id == interaction.user.id) {
-				await interaction.reply("You can't give yourself rep!");
+				await interaction.editReply("You can't give yourself rep!");
 				return;
 			}
 
@@ -86,7 +89,7 @@ module.exports = function(repDB) {
 			if (repValue) {
 				// if the user has already given the target positive rep
 				if (repData.givenPos.includes(interaction.user.id)) {
-					await interaction.reply({ content: "You have already given this user positive rep!", ephemeral: true });
+					await interaction.editReply({ content: "You have already given this user positive rep!", ephemeral: true });
 					return;
 				}
 
@@ -95,7 +98,7 @@ module.exports = function(repDB) {
 					repData.givenNeg = repData.givenNeg.filter(id => id !== interaction.user.id);
 					repData.rep += 1;
 					await repDB.set(target.id, repData);
-					await interaction.reply({ content: `Given ${target.username} neutral rep!`, ephemeral: true });
+					await interaction.editReply({ content: `Given ${target.username} neutral rep!`, ephemeral: true });
 					return;
 				}
 
@@ -103,12 +106,12 @@ module.exports = function(repDB) {
 				repData.givenPos.push(interaction.user.id);
 				repData.rep += 1;
 				await repDB.set(target.id, repData);
-				await interaction.reply({ content: `Given ${target.username} positive rep!`, ephemeral: true });
+				await interaction.editReply({ content: `Given ${target.username} positive rep!`, ephemeral: true });
 			} else if (!repValue) {
 
 				// if the user has already given the target negative rep
 				if (repData.givenNeg.includes(interaction.user.id)) {
-					await interaction.reply({ content: "You have already given this user negative rep!", ephemeral: true });
+					await interaction.editReply({ content: "You have already given this user negative rep!", ephemeral: true });
 					return;
 				}
 
@@ -117,7 +120,7 @@ module.exports = function(repDB) {
 					repData.givenPos = repData.givenPos.filter(id => id !== interaction.user.id);
 					repData.rep -= 1;
 					await repDB.set(target.id, repData);
-					await interaction.reply({ content: `Given ${target.username} neutral rep!`, ephemeral: true });
+					await interaction.editReply({ content: `Given ${target.username} neutral rep!`, ephemeral: true });
 					return;
 				}
 
@@ -125,7 +128,7 @@ module.exports = function(repDB) {
 				repData.givenNeg.push(interaction.user.id);
 				repData.rep -= 1;
 				await repDB.set(target.id, repData);
-				await interaction.reply({ content: `Given ${target.username} negative rep!`, ephemeral: true });
+				await interaction.editReply({ content: `Given ${target.username} negative rep!`, ephemeral: true });
 			}
 		},
 	};
