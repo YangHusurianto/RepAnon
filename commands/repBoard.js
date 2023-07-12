@@ -32,7 +32,7 @@ module.exports = function(repDB) {
 						if (i > 10) return [];
 
 						return {
-							name: guild.members.fetch(`${user.id}`).name,
+							name: guild.members.fetch(`${user.id}`).nickname,
 							value: `${user.rep} rep`
 						};
 					})
