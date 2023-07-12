@@ -23,7 +23,7 @@ module.exports = function(repDB) {
 				users.push({ id: key, rep: value.rep });
 			}
 
-			const sortedUsers = users.sort((a, b) => (a.rep > b.rep) ? 1 : -1);
+			const sortedUsers = users.sort((a, b) => (a.rep < b.rep) ? 1 : -1);
 
 			const repEmbed = new EmbedBuilder()
 				.setTitle(`Top 10 Rep in ${guild.name}`)
@@ -32,7 +32,7 @@ module.exports = function(repDB) {
 						if (i > 10) return [];
 
 						return {
-							name: user.id,
+							name: guild.members.fetch(`${user.id}`).name,
 							value: `${user.rep} rep`
 						};
 					})
