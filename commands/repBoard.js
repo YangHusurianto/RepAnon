@@ -38,7 +38,7 @@ module.exports = function(repDB) {
 					})
 				);
 
-			await interaction.editreply({ embeds: [repEmbed] });
+			await interaction.editReply({ embeds: [repEmbed] });
 		},
 	};
 };	
