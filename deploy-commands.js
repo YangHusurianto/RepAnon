@@ -37,8 +37,8 @@ rest.delete(Routes.applicationCommand(process.env.CLIENT_ID, '112771594498317534
 
 		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
-			Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.DEV_GUILD_ID),
-			// Routes.applicationCommands(process.env.CLIENT_ID),
+			// Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.DEV_GUILD_ID),
+			Routes.applicationCommands(process.env.CLIENT_ID),
 			{ body: commands },
 		);
 
