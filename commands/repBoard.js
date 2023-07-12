@@ -26,8 +26,8 @@ module.exports = function(repDB) {
 			}
 
 			const sortedUsers = (interaction.options.getBoolean("reverse") 
-								? users.sort((a, b) => (a.rep > b.rep) ? -1 : 1)
-								: users.sort((a, b) => (a.rep > b.rep) ? 1 : -1);
+								? users.sort((a, b) => (a.rep > b.rep) ? 1 : -1)
+								: users.sort((a, b) => (a.rep > b.rep) ? -1 : 1);
 
 			const repEmbed = new EmbedBuilder()
 				.setTitle(`Top 10 Rep in ${guild.name}`)
