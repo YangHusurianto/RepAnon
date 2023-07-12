@@ -34,9 +34,7 @@ module.exports = function(repDB) {
 			// ensure that the user is in the rep server (GUILD_ID)
 			const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
 
-			const inServer = await guild.members.fetch(`${interaction.user.id}`)
-				.catch(console.error);
-			if (inServer.size == 0) {
+			if (!guild) {
 				await interaction.editReply(`You must be in the ${guild.name} server to give rep to others.`);
 			}
 
