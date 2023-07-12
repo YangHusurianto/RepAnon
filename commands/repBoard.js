@@ -6,7 +6,8 @@ module.exports = function(repDB) {
 	return {
 		data: new SlashCommandBuilder()
 			.setName('repboard')
-			.setDescription('See the top 10 users'),
+			.setDescription('See the top 10 users')
+			.addBooleanOption(option => option.setName('reverse').setDescription("Whether to show the top 10 or bottom 10")),
 		async execute(interaction) {
 			// defer reply for discord
 			await interaction.deferReply();
@@ -24,7 +25,9 @@ module.exports = function(repDB) {
                     .then(user => users.push({ nickname: user.nickname, rep: value.rep }));
 			}
 
-			const sortedUsers = users.sort((a, b) => (a.rep < b.rep) ? 1 : -1);
+			const sortedUsers = (interaction.options.getBoolean("reverse") 
+								? users.sort((a, b) => (a.rep > b.rep) ? -1 : 1)
+								: users.sort((a, b) => (a.rep > b.rep) ? 1 : -1);
 
 			const repEmbed = new EmbedBuilder()
 				.setTitle(`Top 10 Rep in ${guild.name}`)
