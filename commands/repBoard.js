@@ -31,9 +31,7 @@ module.exports = function(repDB) {
 				.addFields(
 					sortedUsers.flatMap((user, i) => {
 						if (i > 10) return [];
-
-						let nickname = await guild.members.fetch(`${user.id}`).nickname;
-
+						
 						return {
 							name: user.nickname,
 							value: `${user.rep} rep`
