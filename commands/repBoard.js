@@ -25,12 +25,15 @@ module.exports = function(repDB) {
                     .then(user => users.push({ nickname: user.nickname, rep: value.rep }));
 			}
 
-			const sortedUsers = (interaction.options.getBoolean("reverse") 
-								? users.sort((a, b) => (a.rep > b.rep) ? 1 : -1)
-								: users.sort((a, b) => (a.rep > b.rep) ? -1 : 1));
+			let sortedUsers = users.sort((a, b) => (a.rep > b.rep) ? -1 : 1);
+			let title = `Top 10 Rep in ${guild.name}`;
+			if (interaction.options.getBoolean("reverse")) {
+				title = `Bottom 10 Rep in ${guild.name}`;
+				sortedUsers = users.sort((a, b) => (a.rep > b.rep) ? 1 : -1);
+			}
 
 			const repEmbed = new EmbedBuilder()
-				.setTitle(`Top 10 Rep in ${guild.name}`)
+				.setTitle(title)
 				.addFields(
 					sortedUsers.flatMap((user, i) => {
 						if (i > 10) return [];
