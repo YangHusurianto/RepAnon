@@ -20,7 +20,8 @@ module.exports = function(repDB) {
 
 			let users = [];
 			for await (const [key, value] of repDB.iterator()) {
-				users.push({ nickname: await guild.members.fetch(key).nickname, rep: value.rep });
+                guild.members.fetch(key)
+                    .then(user => users.push({ nickname: user.nickname, rep: value.rep }));
 			}
 
 			const sortedUsers = users.sort((a, b) => (a.rep < b.rep) ? 1 : -1);
