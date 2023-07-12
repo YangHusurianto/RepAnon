@@ -26,7 +26,6 @@ module.exports = function(repDB) {
 			const sortedUsers = users.sort((a, b) => (a.rep > b.rep) ? 1 : -1);
 
 			const repEmbed = new EmbedBuilder()
-				.setColor(repColor)
 				.setTitle(`Top 10 Rep in ${guild.name}`)
 				.addFields(
 					sortedUsers.flatMap((user, i) => {
