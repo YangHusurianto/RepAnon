@@ -11,6 +11,28 @@ module.exports = function(repDB) {
 					.setDescription('The user to get the rep of')
 					.setRequired(true)),
 		async execute(interaction) {
+			// check if user has direct permission (check first to prevent checking every role)
+			const allowedUsers = repDB.get("allowedUsers");
+			if (allowedUsers.indexOf(interaction.user.id) < 0) {
+				await interaction.reply({ content: "You do not have permission to run this command!", ephemeral: true });
+				return;
+			}
+
+			// check if user has permission through roles
+			const allowedRoles = repDB.get("allowedRoles");
+			const userRoles = interaction.member.roles.cache;
+			let allowed = false;
+			allowedRoles.forEach(allowedRole => {
+				if (!userRoles.get(allowedRole)) {
+					allowed = true;
+					break;
+				}
+			});
+			if (!allowed) {
+				await interaction.reply({ content: "You do not have permission to run this command!", ephemeral: true });
+				return;
+			}
+
 			const target = interaction.options.getUser('user');
 			let repData = await repDB.get(target.id);
 
