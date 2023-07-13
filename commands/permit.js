@@ -10,7 +10,7 @@ module.exports = function(repDB) {
 			.addMentionableOption(option => option.setName('target').setDescription("Target to permit"))
 			.setDMPermission(false),
 		async execute(interaction) {
-			if (!interaction.memberPermissions.has(PermissionsBitField.Flags.ADMINISTRATOR)) {
+			if (!interaction.memberPermissions.has(PermissionsBitField.Flags.Administrator)) {
 				await interaction.reply("You do not have permission to run this command!");
 			}
 
