@@ -12,11 +12,37 @@ module.exports = function(repDB) {
 			// defer reply for discord
 			await interaction.deferReply();
 
+			let allowed = false;
+
+			// check if user has direct permission (check first to prevent checking every role)
+			const allowedUsers = await repDB.get("allowedUsers");
+			if (allowedUsers.indexOf(interaction.user.id) >= 0) {
+				allowed = true;
+			}
+
+			if (!allowed) { // remove redundant checking
+				// check if user has permission through roles
+				const allowedRoles = await repDB.get("allowedRoles");
+				const userRoles = interaction.member.roles.cache;
+				allowedRoles.forEach(allowedRole => {
+					if (!userRoles.get(allowedRole)) {
+						allowed = true;
+					}
+				});
+			}
+
+			// if user not permitted
+			if (!allowed) {
+				await interaction.editReply("You do not have permission to run this command!");
+				return;
+			}
+
 			// ensure that the user is in the rep server (GUILD_ID)
 			const guild = interaction.client.guilds.cache.get(process.env.GUILD_ID);
 
 			if (!guild) {
 				await interaction.editReply(`You must be in the ${guild.name} server to give rep to others.`);
+				return;
 			}
 
 			let users = [];
