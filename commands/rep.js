@@ -25,7 +25,6 @@ module.exports = function(repDB) {
 			allowedRoles.forEach(allowedRole => {
 				if (!userRoles.get(allowedRole)) {
 					allowed = true;
-					break;
 				}
 			});
 			if (!allowed) {
