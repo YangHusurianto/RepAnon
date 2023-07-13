@@ -46,7 +46,9 @@ module.exports = function(repDB) {
 			}
 
 			let users = [];
+			const keyKeys = ["allowedUsers", "allowedRoles"]; // special keyvs
 			for await (const [key, value] of repDB.iterator()) {
+				if (keyKeys.indexOf(key) >= 0) continue;
                 guild.members.fetch(key)
                     .then(user => users.push({ nickname: user.nickname, rep: value.rep }));
 			}
