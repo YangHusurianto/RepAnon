@@ -4,13 +4,14 @@ module.exports = function(repDB) {
 	return {
 		data: new SlashCommandBuilder()
 			.setName('rep')
-			.setDescription('Check your own rep or another user\'s rep')
+			.setDescription("Check a user's rep")
 			.addUserOption(option =>
 				option
-					.setName('target')
-					.setDescription('The user to get the rep of')),
+					.setName('user')
+					.setDescription('The user to get the rep of')
+					.setRequired(true)),
 		async execute(interaction) {
-			const target = interaction.options.getUser('target') ?? interaction.user;
+			const target = interaction.options.getUser('user');
 			let repData = await repDB.get(target.id);
 
 			// if user data doesnt already exist, create
