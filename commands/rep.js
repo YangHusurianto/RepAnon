@@ -24,7 +24,7 @@ module.exports = function(repDB) {
 				const allowedRoles = await repDB.get("allowedRoles");
 				const userRoles = interaction.member.roles.cache;
 				allowedRoles.forEach(allowedRole => {
-					if (!userRoles.get(allowedRole)) {
+					if (userRoles.get(allowedRole)) {
 						allowed = true;
 					}
 				});
