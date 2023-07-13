@@ -49,8 +49,8 @@ module.exports = function(repDB) {
 			const keyKeys = ["allowedUsers", "allowedRoles"]; // special keyvs
 			for await (const [key, value] of repDB.iterator()) {
 				if (keyKeys.indexOf(key) >= 0) continue;
-                guild.members.fetch(key)
-                    .then(user => users.push({ nickname: (user.nickname ? user.nickname : user.user.displayName), rep: value.rep }));
+                const member = await guild.members.fetch(key);
+                users.push({ nickname: member.user.username, rep: value.rep });
 			}
 
 			let sortedUsers = users.sort((a, b) => (a.rep > b.rep) ? -1 : 1);
