@@ -50,7 +50,7 @@ module.exports = function(repDB) {
 			for await (const [key, value] of repDB.iterator()) {
 				if (keyKeys.indexOf(key) >= 0) continue;
                 guild.members.fetch(key)
-                    .then(user => users.push({ nickname: user.nickname, rep: value.rep }));
+                    .then(user => users.push({ nickname: (user.nickname ? user.nickname : user.user.displayName), rep: value.rep }));
 			}
 
 			let sortedUsers = users.sort((a, b) => (a.rep > b.rep) ? -1 : 1);
